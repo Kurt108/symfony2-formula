@@ -1,0 +1,73 @@
+php:
+  ng:
+    lookup:
+      fpm:
+        ini: /etc/php5/fpm/php.ini
+        defaults:
+          global:
+            pid: /var/run/php5-fpm.pid
+            error_log: /var/log/php5-fpm.log
+            include: /etc/php5/fpm/pool.d/*.conf
+    fpm:
+      pools:
+        'www.conf':
+          enabled: False
+        'symfony2.conf':
+          enabled: True
+          settings:
+            symfony2:
+              user: www-data
+              group: www-data
+              'listen.owner': www-data
+              'listen.group': www-data
+              listen: /var/run/php5-fpm-symfony2.sock
+              pm: dynamic
+              pm.max_children: 2
+              pm.start_servers: 1
+              pm.min_spare_servers: 1
+              pm.max_spare_servers: 2
+              'php_admin_value[memory_limit]': 32M
+              chdir: '/'
+
+mysql:
+  server:
+    user: mysql
+    mysqld:
+      bind-address: 127.0.0.1
+      log_bin: /var/log/mysql/mysql-bin.log
+      port: 3306
+  database:
+    - symfony2
+  user:
+    symfony2:
+      password: 'default'
+      host: localhost
+      databases:
+        - database: symfony2
+          grants: ['all privileges']
+
+
+
+nginx:
+  ng:
+    install_from_ppa: True
+    ppa_version: 'stable'
+    lookup:
+      package: nginx-full
+    vhosts:
+      managed:
+        default:
+          enabled: False
+          config:
+            - server: 'bogus'
+        symfony2:
+          enabled: True
+          config:
+           - server:
+             - server_name: 'www.symfony2-instance.com'
+             - root: '/var/www/symfony2/'
+             - index: 'app_dev.php'
+             - listen:
+               - 80
+               - default_server
+             - include: /etc/nginx/conf.d/symfony2

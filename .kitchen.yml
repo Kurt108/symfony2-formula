@@ -1,0 +1,101 @@
+---
+driver:
+  name: vagrant
+
+provisioner:
+  name: salt_solo
+  formula: symfony2
+
+
+  dependancies:
+    - path: '../mysql-formula'
+      name: 'mysql'
+    - path: '../php-formula'
+      name: 'php'
+    - path: '../nginx-formula'
+      name: 'nginx'
+
+suites:
+  - name: default
+    provisioner:
+      pillars-from-files:
+        base.sls: pillar.example
+        github.sls: github.sls
+      pillars:
+        top.sls:
+          base:
+            '*':
+              - base
+              - sqlite
+              - github
+        sqlite.sls:
+          drupal:
+            lookup:
+              database: 'sqlite'
+              repository: 'username/repository'
+              app: 'symfony2/subfolder'
+
+          nginx:
+            ng:
+              vhosts:
+                managed:
+                  symfony2:
+                    config:
+                     - server:
+                       - root: '/var/www/symfony2/subfolder/web/'
+
+      state_top:
+        base:
+          '*':
+            - symfony2
+            - php.fpm
+            - php.ng.fpm.config
+            - php.ng.fpm.pools
+            - php.ng.fpm.pools_config
+            - nginx.ng
+            - nginx.ng.config
+            - nginx.ng.service
+            - nginx.ng.vhosts
+            - nginx.ng.vhosts_config
+
+  - name: default_mysql
+    provisioner:
+      pillars-from-files:
+        base.sls: pillar.example
+      pillars:
+        top.sls:
+          base:
+            '*':
+              - base
+              - mysql
+        mysql.sls:
+          drupal:
+            lookup:
+              database: 'mysql'
+      state_top:
+        base:
+          '*':
+            - symfony2
+            - mysql.server
+            - mysql.database
+            - mysql.user
+            - mysql.client
+            - php.fpm
+            - php.ng.fpm.config
+            - php.ng.fpm.pools
+            - php.ng.fpm.pools_config
+            - nginx.ng
+            - nginx.ng.config
+            - nginx.ng.service
+            - nginx.ng.vhosts
+            - nginx.ng.vhosts_config
+
+
+platforms:
+  - name: ubuntu-12.04
+    driver:
+      image_id: ami-812b43f6
+      username: ubuntu
+
+transport:
+  ssh_key: '~/.ssh/kitchen-aws.pem'

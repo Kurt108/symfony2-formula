@@ -1,0 +1,18 @@
+{% set symfony2 = salt['grains.filter_by']({
+    'default': {
+        'database': 'sqlite',
+        'doc_root': '/var/www',
+        'user': 'www-data',
+        'index': 'app_dev.php',
+        'db_host': 'localhost',
+        'db_name': 'symfony2',
+        'db_user': 'symfony2',
+        'db_pass': 'overwrite-with-pillar',
+        'secret': 'DJgK4Bc2go4eEni30Ypo5okavcIV6VC7UIDlKavMsxs',
+        'nginx_cache': 'false',
+        'repository': false,
+        'app': 'symfony2',
+    },
+}, merge=salt['pillar.get']('drupal:lookup')) %}
+
+
