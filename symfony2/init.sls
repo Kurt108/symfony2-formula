@@ -67,11 +67,24 @@ parameters.yml:
         symfony2: {{ symfony2 }}
 
 
+update_symfony2:
+  cmd.run:
+    - name: composer update --no-interaction
+    - cwd: {{ symfony2.doc_root  }}/{{symfony2.app }}
+    - user: {{ symfony2.user }}
+    - watch:
+      - file: parameters.yml
+    - require:
+      - sls: php.composer
+
+
+
 install_symfony2:
-  cmd.wait:
+  cmd.run:
     - name: composer install --no-interaction
     - cwd: {{ symfony2.doc_root  }}/{{symfony2.app }}
     - user: {{ symfony2.user }}
+    - unless: test -x {{ symfony2.doc_root  }}/{{symfony2.app }}/composer.lock
     - watch:
       - file: parameters.yml
     - require:
