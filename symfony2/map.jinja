@@ -12,6 +12,9 @@
         'nginx_cache': 'false',
         'repository': false,
         'app': 'symfony2',
+        'webdav_url': 'webdav://some.where',
+        'webdav_user': 'user',
+        'webdav_pass': 'pass',
     },
 }, merge=salt['pillar.get']('drupal:lookup')) %}
 

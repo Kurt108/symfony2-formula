@@ -66,6 +66,20 @@ parameters.yml:
     - context:
         symfony2: {{ symfony2 }}
 
+parameters_local.yml:
+  file.managed:
+    - name: {{ symfony2.doc_root  }}/{{ symfony2.app }}/app/config/parameters_local.yml
+    - source: salt://symfony2/files/parameters_local.yml.tmpl
+    - template: jinja
+    - user: {{ symfony2.user }}
+    - group: {{ symfony2.user }}
+    - context:
+        symfony2: {{ symfony2 }}
+    - notify:
+      - cmd: update_symfony2
+
+
+
 
 update_symfony2:
   cmd.run:
@@ -74,6 +88,7 @@ update_symfony2:
     - user: {{ symfony2.user }}
     - watch:
       - file: parameters.yml
+      - file: parameters_local.yml
     - require:
       - sls: php.composer
 
